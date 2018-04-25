@@ -48,6 +48,12 @@ class Middleman::Condenser < ::Middleman::Extension
         @condenser.append_path(child) if File.directory?(child)
       end
     end
+    
+    # Append npm sources
+    asset_dir = File.join(app.root, 'node_modules')
+    if File.exist?(asset_dir) && File.directory?(asset_dir)
+      @condenser.append_npm_path(asset_dir)
+    end
   end
   
   def before_build(builder)
