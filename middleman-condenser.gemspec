@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
@@ -17,7 +16,8 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   
   # The version of middleman-core your extension depends on
-  s.add_runtime_dependency("middleman-core", [">= 4.2.1"])
+  s.add_runtime_dependency "condenser", "~> 0.0.4"
+  s.add_runtime_dependency "middleman-core", ">= 4.2.1"
   
   # Additional dependencies
   # s.add_runtime_dependency("gem-name", "gem-version")
