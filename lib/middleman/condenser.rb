@@ -68,10 +68,16 @@ class Middleman::Condenser < ::Middleman::Extension
   def after_configuration
     # Do something
   end
+  
+  def after_build(b)
+    @required_assets.each do |asset|
+      puts @condenser.find_export(asset).write(File.join(app.config[:build_dir], options[:prefix]))
+    end
+  end
 
   def manipulate_resource_list resources
     resources.reject do |resource|
-      resource.path.start_with?(options[:prefix])
+      resource.path.start_with?(options[:prefix].sub(/^\//, ''))
     end
   end
   
@@ -81,7 +87,6 @@ class Middleman::Condenser < ::Middleman::Extension
     manifest = Condenser::Manifest.new(@condenser, build_dir)
     puts @required_assets.inspect
     manifest.compile(@required_assets).each do |a|
-      puts a.inspect
       builder.instance_variable_get(:@to_clean).delete_if! { |x| a.to_s == a }
     end
   end
@@ -91,8 +96,10 @@ class Middleman::Condenser < ::Middleman::Extension
     def asset_path(kind, source=nil, options={})
       accept = case kind
       when :css
+        source << ".#{kind}" if !source.end_with?(kind.to_s)
         'text/css'
       when :js
+        source << ".#{kind}" if !source.end_with?(kind.to_s)
         'application/javascript'
       end
       
@@ -104,7 +111,6 @@ class Middleman::Condenser < ::Middleman::Extension
     end
 
     def image_tag(source, options = {})
-      puts 'xx'
       if options[:size] && (options[:height] || options[:width])
         raise ArgumentError, "Cannot pass a :size option with a :height or :width option"
       end
@@ -112,7 +118,6 @@ class Middleman::Condenser < ::Middleman::Extension
       src = options[:src] = asset_path(source)
 
       options[:width], options[:height] = extract_dimensions(options.delete(:size)) if options[:size]
-      puts options.inspect
       tag("img", options)
     end
   
