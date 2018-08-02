@@ -66,7 +66,12 @@ class Middleman::Condenser < ::Middleman::Extension
   end
 
   def after_configuration
-    # Do something
+    host = app.config[:host]&.end_with?('/') ? app.config[:host] : "#{app.config[:host]}/"
+    @condenser.context_class.class_eval <<~RUBY
+      def asset_path(path, options = {})
+        "#{host}" + path.delete_prefix('/')
+      end
+    RUBY
   end
   
   def after_build(b)
@@ -104,7 +109,7 @@ class Middleman::Condenser < ::Middleman::Extension
       end
       
       source = kind if source.nil?
-      
+
       asset = app.condenser.find_export(source, accept: accept)
       app.extensions[:condenser].export(source)
       "/#{app.extensions[:condenser].options[:prefix].gsub(/^\//, '')}/#{asset.path}"
