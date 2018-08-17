@@ -32,7 +32,7 @@ class Middleman::Condenser < ::Middleman::Extension
     require 'condenser/server'
 
     cache = Condenser::Cache::FileStore.new(File.join(app.root, 'tmp/cache'))
-    @condenser = Condenser.new(app.root, cache: cache)
+    @condenser = Condenser.new([], cache: cache)
     app.use(Middleware, app)
     
     Middleman::Application.send(:attr_reader, :condenser)
