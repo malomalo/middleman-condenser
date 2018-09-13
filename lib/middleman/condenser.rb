@@ -32,7 +32,7 @@ class Middleman::Condenser < ::Middleman::Extension
     require 'condenser/server'
 
     cache = Condenser::Cache::FileStore.new(File.join(app.root, 'tmp/cache'))
-    @condenser = Condenser.new([], cache: cache)
+    @condenser = Condenser.new(cache: cache)
     app.use(Middleware, app)
     
     Middleman::Application.send(:attr_reader, :condenser)
@@ -111,8 +111,12 @@ class Middleman::Condenser < ::Middleman::Extension
       source = kind if source.nil?
 
       asset = app.condenser.find_export(source, accept: accept)
-      app.extensions[:condenser].export(source)
-      "/#{app.extensions[:condenser].options[:prefix].gsub(/^\//, '')}/#{asset.path}"
+      if asset
+        app.extensions[:condenser].export(source)
+        "/#{app.extensions[:condenser].options[:prefix].gsub(/^\//, '')}/#{asset.path}"
+      else
+        super
+      end
     end
 
     def image_tag(source, options = {})
