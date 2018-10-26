@@ -54,6 +54,18 @@ class Middleman::Condenser < ::Middleman::Extension
     if File.exist?(asset_dir) && File.directory?(asset_dir)
       @condenser.append_npm_path(asset_dir)
     end
+    
+    @condenser.instance_variable_set(:@middleman_app, app)
+    @condenser.context_class.class_eval do
+      def method_missing(method, *args, &block)
+        if !@middleman_context
+          app = @environment.instance_variable_get(:@middleman_app)
+          @middleman_context = app.template_context_class.new(app, {}, {})
+        end
+        @middleman_context.__send__(method, *args, &block)
+      end
+    end
+    
   end
   
   def before_build(builder)
