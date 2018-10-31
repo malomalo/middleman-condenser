@@ -33,6 +33,10 @@ class Middleman::Condenser < ::Middleman::Extension
 
     cache = Condenser::Cache::FileStore.new(File.join(app.root, 'tmp/cache'))
     @condenser = Condenser.new(cache: cache)
+    if app.development?
+      @condenser.unregister_minifier('application/javascript')
+      @condenser.unregister_minifier('text/css')
+    end
     app.use(Middleware, app)
     
     Middleman::Application.send(:attr_reader, :condenser)
