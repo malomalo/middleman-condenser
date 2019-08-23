@@ -31,7 +31,7 @@ class Middleman::Condenser < ::Middleman::Extension
     require 'condenser'
     require 'condenser/server'
 
-    cache = Condenser::Cache::FileStore.new(File.join(app.root, 'tmp/cache'))
+    cache = Condenser::Cache::FileStore.new(File.join(app.root, 'tmp/cache/assets'))
     @condenser = Condenser.new(cache: cache)
     if app.development?
       @condenser.unregister_minifier('application/javascript')
