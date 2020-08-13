@@ -54,10 +54,7 @@ class Middleman::Condenser < ::Middleman::Extension
     end
     
     # Append npm sources
-    asset_dir = File.join(app.root, 'node_modules')
-    if File.exist?(asset_dir) && File.directory?(asset_dir)
-      @condenser.append_npm_path(app.root)
-    end
+    @condenser.append_npm_path(app.root)
     
     @condenser.instance_variable_set(:@middleman_app, app)
     @condenser.context_class.class_eval do
