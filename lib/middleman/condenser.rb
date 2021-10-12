@@ -124,9 +124,10 @@ class Middleman::Condenser < ::Middleman::Extension
       source = kind if source.nil?
 
       asset = app.condenser.find_export(source, accept: accept)
+      
       if asset
         app.extensions[:condenser].export(source)
-        "/#{app.extensions[:condenser].options[:prefix].gsub(/^\//, '')}/#{asset.path}"
+        "#{options[:relative] ? "" : "/"}#{app.extensions[:condenser].options[:prefix].gsub(/^\//, '')}/#{asset.path}"
       else
         super
       end
