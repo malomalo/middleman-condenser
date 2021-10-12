@@ -127,7 +127,7 @@ class Middleman::Condenser < ::Middleman::Extension
       
       if asset
         app.extensions[:condenser].export(source)
-        "#{options[:relative] ? "" : "/"}#{app.extensions[:condenser].options[:prefix].gsub(/^\//, '')}/#{asset.path}"
+        "#{app.config[:asset_host] || "/" + app.extensions[:condenser].options[:prefix].gsub(/^\//, '')}/#{asset.path}"
       else
         super
       end
