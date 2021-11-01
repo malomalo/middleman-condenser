@@ -75,7 +75,7 @@ class Middleman::Condenser < ::Middleman::Extension
   end
   
   def export(file)
-    @required_assets << file if @required_assets
+    @required_assets << file if @required_assets && @required_assets.exclude?(file)
   end
 
   def after_configuration
