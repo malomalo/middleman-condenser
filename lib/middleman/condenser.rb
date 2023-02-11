@@ -6,7 +6,7 @@ class Middleman::Condenser < ::Middleman::Extension
     def initialize(app, middleman)
       @app = app
       @middleman = middleman
-      @condenser = Condenser::Server.new(@middleman.instance_variable_get(:@condenser))
+      @condenser = Condenser::Server.new(@middleman.instance_variable_get(:@condenser), logger: @middleman.logger)
       @prefix = middleman.extensions[:condenser].options[:prefix]
     end
     
