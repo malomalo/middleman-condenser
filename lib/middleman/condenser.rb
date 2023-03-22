@@ -71,7 +71,7 @@ class Middleman::Condenser < ::Middleman::Extension
   
   def before_build(builder)
     builder.instance_variable_set(:@parallel, false)
-    @required_assets = []
+    @required_assets = Set.new
   end
   
   def export(file)
@@ -103,7 +103,6 @@ class Middleman::Condenser < ::Middleman::Extension
     build_dir = File.join(app.config[:build_dir], options[:prefix])
     
     manifest = Condenser::Manifest.new(@condenser, build_dir)
-    puts @required_assets.inspect
     manifest.compile(@required_assets).each do |a|
       builder.instance_variable_get(:@to_clean).delete_if! { |x| a.to_s == a }
     end
