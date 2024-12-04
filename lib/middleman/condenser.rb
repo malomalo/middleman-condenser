@@ -79,11 +79,15 @@ class Middleman::Condenser < ::Middleman::Extension
   end
 
   def after_configuration
-    prefix = File.join(*[app.config[:host], app.extensions[:condenser].options[:prefix]].compact)
+    prefix = [
+      app.config[:asset_host] || app.config[:host],
+      app.extensions[:condenser].options[:prefix]
+    ].compact.reduce{|final, item| final + "/" + item.delete_prefix("/").delete_suffix("/")}
+    
     @condenser.context_class.class_eval <<~RUBY
       def asset_path(path, options = {})
         @environment.instance_variable_get(:@middleman_app).extensions[:condenser].export(path)
-        File.join("#{prefix}", @environment.find(path, options).path)
+        ["#{prefix}", @environment.find(path, options).path].join("/")
       end
     RUBY
   end
@@ -127,7 +131,11 @@ class Middleman::Condenser < ::Middleman::Extension
       
       if asset
         app.extensions[:condenser].export(source)
-        "#{app.config[:asset_host] || "/" + app.extensions[:condenser].options[:prefix].gsub(/^\//, '')}/#{asset.path}"
+        [
+          app.config[:asset_host] || app.config[:host],
+          app.extensions[:condenser].options[:prefix],
+          asset.path
+        ].compact.reduce{|final, item| final + "/" + item.delete_prefix("/").delete_suffix("/")}
       else
         super
       end
