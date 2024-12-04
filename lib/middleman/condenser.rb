@@ -82,6 +82,7 @@ class Middleman::Condenser < ::Middleman::Extension
     prefix = File.join(*[app.config[:host], app.extensions[:condenser].options[:prefix]].compact)
     @condenser.context_class.class_eval <<~RUBY
       def asset_path(path, options = {})
+        @environment.instance_variable_get(:@middleman_app).extensions[:condenser].export(path)
         File.join("#{prefix}", @environment.find(path, options).path)
       end
     RUBY
