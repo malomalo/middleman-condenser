@@ -6,7 +6,7 @@ class Middleman::Condenser < ::Middleman::Extension
     def initialize(app, middleman)
       @app = app
       @middleman = middleman
-      @condenser = Condenser::Server.new(@middleman.instance_variable_get(:@condenser))
+      @condenser = Condenser::Server.new(@middleman.instance_variable_get(:@condenser), logger: @middleman.logger)
       @prefix = middleman.extensions[:condenser].options[:prefix]
     end
     
@@ -71,7 +71,7 @@ class Middleman::Condenser < ::Middleman::Extension
   
   def before_build(builder)
     builder.instance_variable_set(:@parallel, false)
-    @required_assets = []
+    @required_assets = Set.new
   end
   
   def export(file)
@@ -79,10 +79,11 @@ class Middleman::Condenser < ::Middleman::Extension
   end
 
   def after_configuration
-    host = app.config[:host]&.end_with?('/') ? app.config[:host] : "#{app.config[:host]}/"
+    prefix = File.join(*[app.config[:host], app.extensions[:condenser].options[:prefix]].compact)
     @condenser.context_class.class_eval <<~RUBY
       def asset_path(path, options = {})
-        "#{host}" + path.delete_prefix('/')
+        @environment.instance_variable_get(:@middleman_app).extensions[:condenser].export(path)
+        File.join("#{prefix}", @environment.find(path, options).path)
       end
     RUBY
   end
@@ -103,7 +104,6 @@ class Middleman::Condenser < ::Middleman::Extension
     build_dir = File.join(app.config[:build_dir], options[:prefix])
     
     manifest = Condenser::Manifest.new(@condenser, build_dir)
-    puts @required_assets.inspect
     manifest.compile(@required_assets).each do |a|
       builder.instance_variable_get(:@to_clean).delete_if! { |x| a.to_s == a }
     end
